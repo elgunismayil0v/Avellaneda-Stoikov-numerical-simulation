@@ -1,4 +1,5 @@
 # core/data_logger.py
+import pandas as pd
 class DataLogger:
     def __init__(self):
         self.data = {
