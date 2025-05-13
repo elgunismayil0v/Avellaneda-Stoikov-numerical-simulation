@@ -1,5 +1,6 @@
 # executions/poisson_execution.py
 from core.order_execution import OrderExecution
+import numpy as np
 
 
 class PoissonOrderExecution(OrderExecution):

@@ -6,6 +6,7 @@ from core.inventory_manager import InventoryManager
 from core.data_logger import DataLogger
 from core.simulation_runner import SimulationRunner
 
+import matplotlib.pyplot as plt
 
 def main():
     # Initialize components
