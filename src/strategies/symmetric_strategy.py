@@ -1,7 +1,7 @@
 # strategies/avellaneda_stoikov.py
 from core.pricing_strategy import PricingStrategy
-
-class SymmetricStategy(PricingStrategy):
+import numpy as np
+class SymmetricStrategy(PricingStrategy):
     def __init__(self, gamma: float, sigma: float, k: float):
         self.gamma = gamma
         self.sigma = sigma
