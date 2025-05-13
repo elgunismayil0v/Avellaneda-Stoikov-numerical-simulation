@@ -13,11 +13,11 @@ class GeometricBrowianMotion(MarketSimulator):
         S = np.zeros(self.NoOfStep + 1)
         S[0] = self.S0
         dt = 1 / self.NoOfStep
-        dW = np.random.normal(0, np.sqrt(dt), self.NoOfStep)
+        Z = np.random.normal(0, 1, self.NoOfStep)
 
         for i in range(1, self.NoOfStep + 1):
             S[i] = S[i - 1] * np.exp(
-            (0.5 * self.sigma**2) * dt + self.sigma * dW[i - 1])
+            (-0.5 * self.sigma**2) * dt + self.sigma * Z[i - 1] * np.sqrt(dt))
 
         return S
     

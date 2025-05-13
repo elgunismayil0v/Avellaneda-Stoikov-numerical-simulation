@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 class AvellanedaStoikovGBM(PricingStrategy):
-    def __init__(self, gamma, inventory, k, gbm: GeometricBrowianMotion):
+    def __init__(self, gamma: float, inventory: int, k: float, gbm: GeometricBrowianMotion):
         self.gamma = gamma
         self.q = inventory
         self.sigma = gbm.sigma
