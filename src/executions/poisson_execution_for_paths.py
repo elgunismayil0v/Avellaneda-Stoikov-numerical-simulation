@@ -4,7 +4,7 @@ from src.simulations.geometric_browian import GeometricBrowianMotion
 import numpy as np
 
 class PoissonExecutionForPaths(OrderExecution):
-    def __init__(self,A, cash, gbm : AvellanedaStoikovGBM):
+    def __init__(self, A: float, cash: float, gbm : AvellanedaStoikovGBM):
         self.A = A
         self.dt = gbm.dt
         self.spread = gbm.calculate_spread()
