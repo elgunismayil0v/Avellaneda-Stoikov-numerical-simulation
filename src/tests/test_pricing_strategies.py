@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from strategies.avellaneda_stoikov import AvellanedaStoikovStrategy
+from src.strategies.avellaneda_stoikov_for_abm import AvellanedaStoikovStrategy
 from strategies.symmetric_strategy import SymmetricStrategy
 
 
