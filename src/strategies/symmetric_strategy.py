@@ -1,5 +1,5 @@
 # strategies/avellaneda_stoikov.py
-from core.pricing_strategy import PricingStrategy
+from src.core.pricing_strategy import PricingStrategy
 import numpy as np
 class SymmetricStrategy(PricingStrategy):
     def __init__(self, gamma: float, sigma: float, k: float):

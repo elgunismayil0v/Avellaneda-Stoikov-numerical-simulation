@@ -1,40 +1,98 @@
-# main.py
+import matplotlib.pyplot as plt
+import pandas as pd
+
 from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
-from src.strategies.avellaneda_stoikov_for_abm import AvellanedaStoikovStrategyAbm
-from src.executions.poisson_execution_for_abm import PoissonExecutionForAbm
+from src.simulations.geometric_browian import GeometricBrownianMotion
+
+from src.strategies.avellaneda_stoikov import AvellanedaStoikovStrategyAbm
+from src.strategies.symmetric_strategy import SymmetricStrategy
+
+from src.executions.poisson_execution import PoissonExecution
+from src.core.simulation_runner import SimulationRunner
 from src.core.inventory_manager import InventoryManager
 from src.core.data_logger import DataLogger
-from src.core.simulation_runner import SimulationRunner
 
-import matplotlib.pyplot as plt
 
-def main():
-    # Initialize components
-    market = ArithmeticBrownianMotion(300,100,0.2,42)
-    strategy = AvellanedaStoikovStrategyAbm(gamma=1.5, k=1, inventory=0,abm=market)
-    execution = PoissonExecutionForAbm(A=100,cash=0,strategy=strategy)
+def run_strategy(simulator, strategy_class, strategy_name, market_name, steps, dt, gamma, k, sigma):
+    T = steps * dt
+    market = simulator(S0=100, sigma=sigma, seed=42)
+
+    # Strategy: Avellaneda or Symmetric
+    if strategy_name == "Avellaneda":
+        strategy = strategy_class(gamma=gamma, k=k, sigma=sigma)
+    elif strategy_name == "Symmetric":
+        strategy = strategy_class(gamma=gamma, sigma=sigma, k=k)
+    else:
+        raise ValueError("Unknown strategy")
+
+    execution = PoissonExecution(A=100, k=k)
     inventory = InventoryManager(initial_cash=0, initial_inventory=0)
     logger = DataLogger()
 
-    # Configure simulation
     runner = SimulationRunner(
         market=market,
         pricing_strategy=strategy,
         order_execution=execution,
         inventory=inventory,
         logger=logger,
-        dt=0.005,
-        T=1.0
+        dt=dt,
+        T=T
     )
 
-    # Run and analyze
     runner.run()
-    df = logger.get_dataframe()
-    df.to_csv('simulation_results.csv', index=False)
 
-    # Plot prices
-    df.plot(y=['mid_prices', 'reservation_prices', 'bid_prices', 'ask_prices'])
-    plt.title('Price Dynamics')
+    df = logger.get_dataframe()
+    df["pnl"] = df["cash"] + df["inventory"] * df["mid_prices"]
+    df["strategy"] = f"{strategy_name} ({market_name})"
+    return df
+
+
+def main():
+    steps = 300
+    dt = 0.005
+    gamma = 1.5
+    k = 1.0
+    sigma = 0.2
+
+    dfs = []
+
+    # Run 3 configs
+    dfs.append(run_strategy(ArithmeticBrownianMotion, AvellanedaStoikovStrategyAbm, "Avellaneda", "ABM", steps, dt, gamma, k, sigma))
+    dfs.append(run_strategy(GeometricBrownianMotion, AvellanedaStoikovStrategyAbm, "Avellaneda", "GBM", steps, dt, gamma, k, sigma))
+    dfs.append(run_strategy(ArithmeticBrownianMotion, SymmetricStrategy, "Symmetric", "ABM", steps, dt, gamma, k, sigma))
+
+    df_all = pd.concat(dfs, ignore_index=True)
+
+    # Plot inventory
+    plt.figure()
+    for label, group in df_all.groupby("strategy"):
+        plt.plot(group["inventory"].values, label=label)
+    plt.title("Inventory Over Time")
+    plt.xlabel("Time Step")
+    plt.ylabel("Inventory")
+    plt.legend()
+    plt.grid(True)
+
+    # Plot PnL
+    plt.figure()
+    for label, group in df_all.groupby("strategy"):
+        plt.plot(group["pnl"].values, label=label)
+    plt.title("PnL Over Time")
+    plt.xlabel("Time Step")
+    plt.ylabel("PnL")
+    plt.legend()
+    plt.grid(True)
+
+    # Plot Mid Prices
+    plt.figure()
+    for label, group in df_all.groupby("strategy"):
+        plt.plot(group["mid_prices"].values, label=label)
+    plt.title("Mid Price Paths")
+    plt.xlabel("Time Step")
+    plt.ylabel("Price")
+    plt.legend()
+    plt.grid(True)
+
     plt.show()
 
 
