@@ -1,18 +1,18 @@
 # main.py
-from simulations.arithmetic_brownian import ArithmeticBrownianMotion
-from strategies.avellaneda_stoikov import AvellanedaStoikovStrategy
-from executions.poisson_execution import PoissonOrderExecution
-from core.inventory_manager import InventoryManager
-from core.data_logger import DataLogger
-from core.simulation_runner import SimulationRunner
+from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
+from src.strategies.avellaneda_stoikov_for_abm import AvellanedaStoikovStrategyAbm
+from src.executions.poisson_execution_for_abm import PoissonExecutionForAbm
+from src.core.inventory_manager import InventoryManager
+from src.core.data_logger import DataLogger
+from src.core.simulation_runner import SimulationRunner
 
 import matplotlib.pyplot as plt
 
 def main():
     # Initialize components
-    market = ArithmeticBrownianMotion(S0=100, sigma=2)
-    strategy = AvellanedaStoikovStrategy(gamma=0.1, sigma=2, k=1.5)
-    execution = PoissonOrderExecution(A=140, k=1.5)
+    market = ArithmeticBrownianMotion(300,100,0.2,42)
+    strategy = AvellanedaStoikovStrategyAbm(gamma=1.5, k=1, inventory=0,abm=market)
+    execution = PoissonExecutionForAbm(A=100,cash=0,strategy=strategy)
     inventory = InventoryManager(initial_cash=0, initial_inventory=0)
     logger = DataLogger()
 
