@@ -29,16 +29,28 @@ class SimulationRunner:
         
 
     def run(self):
-        mid_prices = self.market.simulate()
+        mid_prices = self.market.simulate(self.steps, self.dt)
 
         for i in range(self.steps):
             t = i * self.dt
             time_remaining = self.T - t
 
-            # Calculate quotes
-            reservation_price = self.strategy.calculate_reservation_price()
-            spread = self.strategy.calculate_spread()
-            bid_price, ask_price = self.strategy.calculate_bid_ask()
+            # Get pricing from strategy
+            reservation_price = self.pricing_strategy.calculate_reservation_price(
+                current_price=mid_prices[i],
+                inventory=self.inventory.inventory,
+                time_remaining=time_remaining
+            )
+
+            bid_spread, ask_spread = self.pricing_strategy.calculate_spreads(
+                current_price=mid_prices[i],
+                inventory=self.inventory.inventory,
+                time_remaining=time_remaining
+            )
+
+            # Calculate absolute prices
+            bid_price = reservation_price - bid_spread
+            ask_price = reservation_price + ask_spread
 
             # Execute orders
             new_inventory, new_cash = self.execution.execute_orders()

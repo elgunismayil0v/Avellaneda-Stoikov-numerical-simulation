@@ -13,10 +13,11 @@ import matplotlib.pyplot as plt
 def main():
     # Initialize components
     market = ArithmeticBrownianMotion(300,100,0.2,42)
-    strategy = AvellanedaStoikovStrategyAbm(gamma=1.5, k=1, inventory=5,abm=market)
+    # strategy = AvellanedaStoikovStrategyAbm(gamma=1.5, k=1, inventory=5,abm=market)
+    strategy = AsymmetricAvellanedaStoikovStrategy(gamma=0.1,sigma=2, kappa=1.5)
     #execution = PoissonExecutionForAbm(A=100,cash=0,strategy=strategy)
     execution = AsymPoissonOrderExecution(A_bid = 160.0, A_ask = 120.0, k_bid = 1.2, k_ask = 1.8, cash = 0.0, strategy=strategy)
-    inventory = InventoryManager(initial_cash=5, initial_inventory=5)
+    inventory = InventoryManager(initial_cash=0, initial_inventory=0)
     logger = DataLogger()
 
     # Configure simulation
