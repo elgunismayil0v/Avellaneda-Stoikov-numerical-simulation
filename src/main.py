@@ -7,7 +7,7 @@ from src.simulations.geometric_browian import GeometricBrownianMotion
 from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyABM
 from src.strategies.symmetric_strategy import SymmetricStrategy
 
-from src.executions.poisson_execution import PoissonExecution
+from src.executions.poisson_execution_abm import PoissonExecution
 from src.core.simulation_runner import SimulationRunner
 from src.core.inventory_manager import InventoryManager
 from src.core.data_logger import DataLogger

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from simulations.arithmetic_brownian import ArithmeticBrownianMotion
 from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyABM
-from executions.poisson_execution import PoissonOrderExecution
+from src.executions.poisson_execution_abm import PoissonOrderExecution
 from core.inventory_manager import InventoryManager
 from core.data_logger import DataLogger
 from core.simulation_runner import SimulationRunner
