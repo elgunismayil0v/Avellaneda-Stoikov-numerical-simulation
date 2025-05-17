@@ -6,8 +6,11 @@ from executions.poisson_execution import PoissonOrderExecution
 from core.inventory_manager import InventoryManager
 from core.data_logger import DataLogger
 from core.simulation_runner import SimulationRunner
+import numpy as np
+import matplotlib.pyplot as plt
 
 def main():
+    np.random.seed(123)
     # Initialize components
     market = ArithmeticBrownianMotion(S0=100, sigma=2)
     strategy = SymmetricStategy(gamma=0.1, sigma=2, k=1.5)
