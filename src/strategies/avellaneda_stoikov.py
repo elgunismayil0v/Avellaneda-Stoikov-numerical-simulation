@@ -4,8 +4,8 @@ from src.core.pricing_strategy import PricingStrategy
 from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
 import numpy as np
 
-class AvellanedaStoikovStrategyAbm(PricingStrategy):
-    def __init__(self, gamma: float, k: float, sigma: float):
+class AvellanedaStoikovStrategy(PricingStrategy):
+    def __init__(self, gamma: float, sigma: float ,k: float):
         self.gamma = gamma
         self.k = k
         self.sigma = sigma

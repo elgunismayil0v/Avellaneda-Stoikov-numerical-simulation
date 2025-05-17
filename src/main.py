@@ -4,7 +4,7 @@ import pandas as pd
 from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
 from src.simulations.geometric_browian import GeometricBrownianMotion
 
-from src.strategies.avellaneda_stoikov import AvellanedaStoikovStrategyAbm
+from src.strategies.avellaneda_stoikov import AvellanedaStoikovStrategy
 from src.strategies.symmetric_strategy import SymmetricStrategy
 
 from src.executions.poisson_execution import PoissonExecution
@@ -18,12 +18,9 @@ def run_strategy(simulator, strategy_class, strategy_name, market_name, steps, d
     market = simulator(S0=100, sigma=sigma, seed=42)
 
     # Strategy: Avellaneda or Symmetric
-    if strategy_name == "Avellaneda":
-        strategy = strategy_class(gamma=gamma, k=k, sigma=sigma)
-    elif strategy_name == "Symmetric":
-        strategy = strategy_class(gamma=gamma, sigma=sigma, k=k)
-    else:
-        raise ValueError("Unknown strategy")
+
+    strategy = strategy_class(gamma=gamma, sigma=sigma, k=k)
+
 
     execution = PoissonExecution(A=100, k=k)
     inventory = InventoryManager(initial_cash=0, initial_inventory=0)
@@ -57,8 +54,8 @@ def main():
     dfs = []
 
     # Run 3 configs
-    dfs.append(run_strategy(ArithmeticBrownianMotion, AvellanedaStoikovStrategyAbm, "Avellaneda", "ABM", steps, dt, gamma, k, sigma))
-    dfs.append(run_strategy(GeometricBrownianMotion, AvellanedaStoikovStrategyAbm, "Avellaneda", "GBM", steps, dt, gamma, k, sigma))
+    dfs.append(run_strategy(ArithmeticBrownianMotion, AvellanedaStoikovStrategy, "Avellaneda", "ABM", steps, dt, gamma, k, sigma))
+    dfs.append(run_strategy(GeometricBrownianMotion, AvellanedaStoikovStrategy, "Avellaneda", "GBM", steps, dt, gamma, k, sigma))
     dfs.append(run_strategy(ArithmeticBrownianMotion, SymmetricStrategy, "Symmetric", "ABM", steps, dt, gamma, k, sigma))
 
     df_all = pd.concat(dfs, ignore_index=True)
