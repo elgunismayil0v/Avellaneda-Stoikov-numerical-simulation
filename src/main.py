@@ -4,7 +4,7 @@ import pandas as pd
 from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
 from src.simulations.geometric_browian import GeometricBrownianMotion
 
-from src.strategies.avellaneda_stoikov import AvellanedaStoikovStrategy
+from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyABM
 from src.strategies.symmetric_strategy import SymmetricStrategy
 
 from src.executions.poisson_execution import PoissonExecution

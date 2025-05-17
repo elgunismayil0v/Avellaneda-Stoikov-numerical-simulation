@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from simulations.arithmetic_brownian import ArithmeticBrownianMotion
-from strategies.avellaneda_stoikov import AvellanedaStoikovStrategy
+from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyABM
 from executions.poisson_execution import PoissonOrderExecution
 from core.inventory_manager import InventoryManager
 from core.data_logger import DataLogger
@@ -23,7 +23,7 @@ def main():
     for sigma, gamma, k, A in itertools.product(sigma_values, gamma_values, k_values, A_values):
         # Initialize components with current parameters
         market = ArithmeticBrownianMotion(S0=100, sigma=sigma)
-        strategy = AvellanedaStoikovStrategy(gamma=gamma, sigma=sigma, k=k)
+        strategy = AvellanedaStoikovStrategyABM(gamma=gamma, sigma=sigma, k=k)
         execution = PoissonOrderExecution(A=A, k=k)
         inventory = InventoryManager(initial_cash=0, initial_inventory=0)
         logger = DataLogger()
