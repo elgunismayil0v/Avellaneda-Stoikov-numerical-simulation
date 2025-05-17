@@ -8,7 +8,8 @@ class DataLogger:
             'ask_prices': [],
             'reservation_prices': [],
             'inventory': [],
-            'cash': []
+            'cash': [],
+            'wealth' : []
         }
 
     def log(self, key: str, value):

@@ -26,6 +26,7 @@ class SimulationRunner:
         self.dt = dt
         self.T = T
         self.steps = int(T / dt)
+        
 
     def run(self):
         mid_prices = self.market.simulate()
@@ -43,6 +44,8 @@ class SimulationRunner:
             new_inventory, new_cash = self.execution.execute_orders()
             self.inventory.update(new_inventory - self.inventory.inventory, new_cash - self.inventory.cash)
 
+            wealth = self.inventory.cash + self.inventory.inventory*mid_prices[i]
+
             # Log data
             self.logger.log('mid_prices', mid_prices[i])
             self.logger.log('bid_prices', bid_price)
@@ -50,3 +53,4 @@ class SimulationRunner:
             self.logger.log('reservation_prices', reservation_price)
             self.logger.log('inventory', self.inventory.inventory)
             self.logger.log('cash', self.inventory.cash)
+            self.logger.log('wealth', wealth)
