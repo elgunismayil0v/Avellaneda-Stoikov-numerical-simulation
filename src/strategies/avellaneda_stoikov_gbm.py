@@ -1,7 +1,7 @@
 from src.core.pricing_strategy import PricingStrategy
 import numpy as np
 
-class AvellanedaStoikovStrategyGBM(PricingStrategy):
+class AvellanedaStoikovStrategyGbm(PricingStrategy):
     def __init__(self, gamma: float, sigma: float, k: float):
         """
         Args:

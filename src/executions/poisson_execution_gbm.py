@@ -1,7 +1,7 @@
 import numpy as np
 from src.core.order_execution import OrderExecution
 
-class PoissonExecutionForGbm(OrderExecution):
+class PoissonExecutionGbm(OrderExecution):
     def __init__(self, A: float, k: float):
         self.A = A
         self.k = k

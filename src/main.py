@@ -4,25 +4,41 @@ import pandas as pd
 from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
 from src.simulations.geometric_browian import GeometricBrownianMotion
 
-from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyABM
+from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyAbm
+from src.strategies.avellaneda_stoikov_gbm import AvellanedaStoikovStrategyGbm
 from src.strategies.symmetric_strategy import SymmetricStrategy
 
-from src.executions.poisson_execution_abm import PoissonExecution
+from src.executions.poisson_execution_abm import PoissonExecutionAbm
+from src.executions.poisson_execution_gbm import PoissonExecutionGbm
 from src.core.simulation_runner import SimulationRunner
 from src.core.inventory_manager import InventoryManager
 from src.core.data_logger import DataLogger
 
 
-def run_strategy(simulator, strategy_class, strategy_name, market_name, steps, dt, gamma, k, sigma):
+def run_strategy(
+    simulator,
+    strategy_class,
+    execution_class,
+    strategy_name,
+    market_name,
+    steps,
+    dt,
+    gamma,
+    k,
+    sigma,
+    seed: int = 42
+):
     T = steps * dt
-    market = simulator(S0=100, sigma=sigma, seed=42)
+    market = simulator(S0=100, sigma=sigma, seed=seed)
+    prices = market.simulate(steps)
 
-    # Strategy: Avellaneda or Symmetric
-
+    # Instantiate the strategy
     strategy = strategy_class(gamma=gamma, sigma=sigma, k=k)
 
+    # Instantiate the matching execution class
+    execution = execution_class(A=100, k=k)
 
-    execution = PoissonExecution(A=100, k=k)
+    # Set up simulation infrastructure
     inventory = InventoryManager(initial_cash=0, initial_inventory=0)
     logger = DataLogger()
 
@@ -43,6 +59,39 @@ def run_strategy(simulator, strategy_class, strategy_name, market_name, steps, d
     df["strategy"] = f"{strategy_name} ({market_name})"
     return df
 
+def run_monte_carlo(
+    simulator,
+    strategy_class,
+    execution_class,
+    strategy_name,
+    market_name,
+    steps,
+    dt,
+    gamma,
+    k,
+    sigma,
+    n_simulations
+):
+    all_results = []
+
+    for i in range(n_simulations):
+        df = run_strategy(
+            simulator=simulator,
+            strategy_class=strategy_class,
+            execution_class=execution_class,
+            strategy_name=strategy_name,
+            market_name=market_name,
+            steps=steps,
+            dt=dt,
+            gamma=gamma,
+            k=k,
+            sigma=sigma,
+            seed=i  # use different seed
+        )
+        final = df.iloc[-1]  # take last row (final pnl, inventory, etc.)
+        all_results.append(final)
+
+    return pd.DataFrame(all_results)
 
 def main():
     steps = 300
@@ -50,45 +99,51 @@ def main():
     gamma = 1.5
     k = 1.0
     sigma = 0.2
+    n_simulations = 1000
+
+    from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyAbm
+    from src.strategies.avellaneda_stoikov_gbm import AvellanedaStoikovStrategyGbm
+    from src.strategies.symmetric_strategy import SymmetricStrategy
+    from src.executions.poisson_execution_abm import PoissonExecutionAbm
+    from src.executions.poisson_execution_gbm import PoissonExecutionGbm
 
     dfs = []
 
-    # Run 3 configs
-    dfs.append(run_strategy(ArithmeticBrownianMotion, AvellanedaStoikovStrategy, "Avellaneda", "ABM", steps, dt, gamma, k, sigma))
-    dfs.append(run_strategy(GeometricBrownianMotion, AvellanedaStoikovStrategy, "Avellaneda", "GBM", steps, dt, gamma, k, sigma))
-    dfs.append(run_strategy(ArithmeticBrownianMotion, SymmetricStrategy, "Symmetric", "ABM", steps, dt, gamma, k, sigma))
+    # Avellaneda ABM
+    dfs.append(run_monte_carlo(
+        ArithmeticBrownianMotion, AvellanedaStoikovStrategyAbm, PoissonExecutionAbm,
+        "Avellaneda", "ABM", steps, dt, gamma, k, sigma, n_simulations
+    ))
+
+    # Avellaneda GBM
+    dfs.append(run_monte_carlo(
+        GeometricBrownianMotion, AvellanedaStoikovStrategyGbm, PoissonExecutionGbm,
+        "Avellaneda", "GBM", steps, dt, gamma, k, sigma, n_simulations
+    ))
+
+    # Symmetric ABM
+    dfs.append(run_monte_carlo(
+        ArithmeticBrownianMotion, SymmetricStrategy, PoissonExecutionAbm,
+        "Symmetric", "ABM", steps, dt, gamma, k, sigma, n_simulations
+    ))
 
     df_all = pd.concat(dfs, ignore_index=True)
 
-    # Plot inventory
-    plt.figure()
+    # Plot histogram of final PnLs
+    plt.figure(figsize=(10, 6))
     for label, group in df_all.groupby("strategy"):
-        plt.plot(group["inventory"].values, label=label)
-    plt.title("Inventory Over Time")
-    plt.xlabel("Time Step")
-    plt.ylabel("Inventory")
+        plt.hist(group["pnl"], alpha=0.6, label=label, density=True)
+    plt.title("Final PnL Distribution (1000 simulations)")
+    plt.xlabel("PnL")
+    plt.ylabel("Density")
     plt.legend()
     plt.grid(True)
 
-    # Plot PnL
-    plt.figure()
-    for label, group in df_all.groupby("strategy"):
-        plt.plot(group["pnl"].values, label=label)
-    plt.title("PnL Over Time")
-    plt.xlabel("Time Step")
-    plt.ylabel("PnL")
-    plt.legend()
-    plt.grid(True)
-
-    # Plot Mid Prices
-    plt.figure()
-    for label, group in df_all.groupby("strategy"):
-        plt.plot(group["mid_prices"].values, label=label)
-    plt.title("Mid Price Paths")
-    plt.xlabel("Time Step")
-    plt.ylabel("Price")
-    plt.legend()
-    plt.grid(True)
+    # Print summary statistics
+    summary = df_all.groupby("strategy")["pnl"].agg(["mean", "std"])
+    summary["sharpe"] = summary["mean"] / summary["std"]
+    print("\nSummary Statistics (Final PnL):")
+    print(summary)
 
     plt.show()
 
