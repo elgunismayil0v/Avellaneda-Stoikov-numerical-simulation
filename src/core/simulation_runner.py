@@ -5,7 +5,7 @@ from src.core.inventory_manager import InventoryManager
 from src.core.market_simulator import MarketSimulator
 from src.core.order_execution import OrderExecution
 from src.core.pricing_strategy import PricingStrategy
-
+import matplotlib.pyplot as plt
 
 class SimulationRunner:
     def __init__(
@@ -26,7 +26,6 @@ class SimulationRunner:
         self.dt = dt
         self.T = T
         self.steps = int(T / dt)
-        
 
     def run(self):
         mid_prices = self.market.simulate(self.steps, self.dt)
@@ -35,27 +34,21 @@ class SimulationRunner:
             t = i * self.dt
             time_remaining = self.T - t
 
-            # Get pricing from strategy
-            reservation_price = self.pricing_strategy.calculate_reservation_price(
-                current_price=mid_prices[i],
-                inventory=self.inventory.inventory,
-                time_remaining=time_remaining
+            # Calculate quotes
+            reservation_price = self.strategy.calculate_reservation_price(
+                mid_prices[i], self.inventory.inventory, time_remaining
             )
-
-            bid_spread, ask_spread = self.pricing_strategy.calculate_spreads(
-                current_price=mid_prices[i],
-                inventory=self.inventory.inventory,
-                time_remaining=time_remaining
+            bid_spread, ask_spread = self.strategy.calculate_spread(
+                mid_prices[i], self.inventory.inventory, time_remaining
             )
-
-            # Calculate absolute prices
             bid_price = reservation_price - bid_spread
             ask_price = reservation_price + ask_spread
 
             # Execute orders
-            new_inventory, new_cash = self.execution.execute_orders()
+            new_inventory, new_cash = self.execution.execute_orders(
+                bid_price, ask_price, self.inventory.inventory, self.inventory.cash, self.dt
+            )
             self.inventory.update(new_inventory - self.inventory.inventory, new_cash - self.inventory.cash)
-
             wealth = self.inventory.cash + self.inventory.inventory*mid_prices[i]
 
             # Log data
