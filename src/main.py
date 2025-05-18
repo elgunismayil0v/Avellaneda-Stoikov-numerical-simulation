@@ -8,6 +8,8 @@ from src.core.inventory_manager import InventoryManager
 from src.core.data_logger import DataLogger
 
 
+
+
 def run_strategy(
     simulator, # Class or function to simulate mid-price (ABM or GBM)
     strategy_class, # Class that implements the quoting strategy
@@ -46,9 +48,11 @@ def run_strategy(
         logger=logger,
         dt=dt,
         T=T
+
     )
 
     runner.run()
+
 
     df = logger.get_dataframe()
     df["pnl"] = df["cash"] + df["inventory"] * df["mid_prices"]
@@ -145,6 +149,8 @@ def main():
     print(summary)
 
     plt.show()
+
+    
 
 
 if __name__ == "__main__":

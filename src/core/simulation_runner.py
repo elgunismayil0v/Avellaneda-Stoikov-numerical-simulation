@@ -19,9 +19,13 @@ class SimulationRunner:
         self.dt = dt
         self.T = T
         self.steps = int(T / dt)
+        
 
     def run(self):
-        mid_prices = self.market.simulate(self.steps)
+
+
+        mid_prices = self.market.simulate(self.steps, self.dt)
+
 
         for i in range(self.steps):
             t = i * self.dt
@@ -30,13 +34,22 @@ class SimulationRunner:
             inventory_level = self.inventory.inventory
             cash = self.inventory.cash
 
-            # Strategy
-            reservation_price = self.strategy.calculate_reservation_price(
-                current_price, inventory_level, time_remaining
+
+            # Get pricing from strategy
+            reservation_price = self.pricing_strategy.calculate_reservation_price(
+                current_price=mid_prices[i],
+                inventory=self.inventory.inventory,
+                time_remaining=time_remaining
             )
-            bid_spread, ask_spread = self.strategy.calculate_spread(
-                current_price, inventory_level, time_remaining
+
+            bid_spread, ask_spread = self.pricing_strategy.calculate_spreads(
+                current_price=mid_prices[i],
+                inventory=self.inventory.inventory,
+                time_remaining=time_remaining
             )
+
+            # Calculate absolute prices
+
             bid_price = reservation_price - bid_spread
             ask_price = reservation_price + ask_spread
 
@@ -50,12 +63,18 @@ class SimulationRunner:
             )
             self.inventory.update(new_inventory - inventory_level, new_cash - cash)
 
-            # Logging
-            self.logger.log('mid_prices', current_price)
+
+            
+
+            wealth = self.inventory.cash + self.inventory.inventory*mid_prices[i]
+
+            # Log data
+            self.logger.log('mid_prices', mid_prices[i])
             self.logger.log('reservation_prices', reservation_price)
+
             self.logger.log('bid_prices', bid_price)
             self.logger.log('ask_prices', ask_price)
             self.logger.log('inventory', self.inventory.inventory)
             self.logger.log('cash', self.inventory.cash)
-
+            self.logger.log('wealth', wealth)
 
