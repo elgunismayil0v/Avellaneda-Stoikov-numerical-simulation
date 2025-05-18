@@ -110,7 +110,7 @@ def main():
     from src.strategies.asymmetric_avellaneda import AsymmetricAvellanedaStoikovStrategy
     from src.executions.poisson_execution_abm import PoissonExecutionAbm
     from src.executions.poisson_execution_gbm import PoissonExecutionGbm
-    from src.executions.assym_poisson_execution import AsymPoissonOrderExecution
+
 
     dfs = []
 
