@@ -57,7 +57,7 @@ Data Logging collect all relevant data points during the simulation. A base logg
 The Simulation Runner ties everything together. It initializes the components, runs the simulation loop, and coordinates between the market, strategy, execution, etc.
 
 ## Development Workflow for 5-Person Team:
-Person A: Extend MarketSimulator with new models (e.g., mean-reverting).
+Elgun Ismayilov: Extend MarketSimulator with new models (e.g.,gbm).
 
 Person B: Implement alternative PricingStrategy classes.
 
