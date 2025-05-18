@@ -18,11 +18,7 @@ class ArithmeticBrownianMotion(MarketSimulator):
         sigma (float): Volatility coefficient (standard deviation).
     """
 
-<<<<<<< HEAD
     def __init__(self, S0: float, sigma: float, NoOfSteps: Optional[int] = None):
-=======
-    def __init__(self, NoOfSteps: int, S0: float, sigma: float):
->>>>>>> 55604f29ca57a4abbc6016a1578c9de053afa4de
         """
         Initializes the ABM simulator with the given parameters.
 
@@ -53,7 +49,6 @@ class ArithmeticBrownianMotion(MarketSimulator):
 
         return S
 
-<<<<<<< HEAD
     def simulate(self, steps: int) -> np.ndarray:
         """
         Runs the simulation of Arithmetic Brownian Motion.
@@ -71,6 +66,3 @@ class ArithmeticBrownianMotion(MarketSimulator):
             S[i] = S[i - 1] + self.sigma * np.sqrt(dt) * Z[i - 1]
 
         return S
-=======
-
->>>>>>> 55604f29ca57a4abbc6016a1578c9de053afa4de
