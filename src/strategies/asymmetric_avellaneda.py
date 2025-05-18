@@ -1,12 +1,12 @@
 import numpy as np
-from core.pricing_strategy import PricingStrategy
+from src.core.pricing_strategy import PricingStrategy
 
 
 class AsymmetricAvellanedaStoikovStrategy(PricingStrategy):
-    def __init__(self, gamma: float, sigma: float, kappa: float):
+    def __init__(self, gamma: float, sigma: float, k: float):
         self.gamma = gamma
         self.sigma = sigma
-        self.kappa = kappa
+        self.k = k
 
     def calculate_reservation_price(self,
                                     current_price: float,
@@ -14,7 +14,7 @@ class AsymmetricAvellanedaStoikovStrategy(PricingStrategy):
                                     time_remaining: float) -> float:
         return current_price - inventory * self.gamma * (self.sigma ** 2) * time_remaining
 
-    def calculate_spreads(self,
+    def calculate_spread(self,
                           current_price: float,
                           inventory: int,
                           time_remaining: float) -> tuple[float, float]:
@@ -22,7 +22,7 @@ class AsymmetricAvellanedaStoikovStrategy(PricingStrategy):
         inventory_risk = self.gamma * (self.sigma ** 2) * time_remaining
 
         # Execution probability component
-        execution_term = (1 / self.gamma) * np.log(1 + self.gamma / self.kappa)
+        execution_term = (1 / self.gamma) * np.log(1 + self.gamma / self.k)
 
         # Asymmetric spread calculation
         delta_bid = ((1 + 2 * inventory) * inventory_risk) / 2 + execution_term

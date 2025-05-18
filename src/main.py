@@ -4,8 +4,10 @@ import seaborn as sns
 from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyAbm
 from src.strategies.avellaneda_stoikov_gbm import AvellanedaStoikovStrategyGbm
 from src.strategies.symmetric_strategy import SymmetricStrategy
+from src.strategies.asymmetric_avellaneda import AsymmetricAvellanedaStoikovStrategy
 from src.executions.poisson_execution_abm import PoissonExecutionAbm
 from src.executions.poisson_execution_gbm import PoissonExecutionGbm
+from src.executions.asym_poisson_execution import AsymPoissonOrderExecution
 from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
 from src.simulations.geometric_brownian import GeometricBrownianMotion
 # Import helper functions (single run, monte carlo, plotting)
@@ -47,6 +49,13 @@ def main():
             "simulator": ArithmeticBrownianMotion,
             "strategy_class": SymmetricStrategy,
             "execution_class": PoissonExecutionAbm
+        },
+        {
+            "name": "Asymmetric",
+            "market": "ABM",
+            "simulator": ArithmeticBrownianMotion,
+            "strategy_class": AsymmetricAvellanedaStoikovStrategy,
+            "execution_class": AsymPoissonOrderExecution
         }
     ]
 

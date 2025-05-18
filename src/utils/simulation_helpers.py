@@ -27,7 +27,17 @@ def run_strategy(
     strategy = strategy_class(gamma=gamma, sigma=sigma, k=k)
 
     # Create the Poisson-based trade execution model with a base intensity A and decay rate k
-    execution = execution_class(A=100, k=k)
+    if execution_class.__name__ == "AsymPoissonOrderExecution":
+        execution = execution_class(
+            A_bid=160.0,
+            A_ask=120.0,
+            k_bid=1.2,
+            k_ask=1.8,
+            cash=0.0,
+            strategy=strategy
+        )
+    else:
+        execution = execution_class(A=100, k=k)
 
     # Start with zero inventory and zero cash. Prepare the logging system to track simulation data.
     inventory = InventoryManager(initial_cash=0, initial_inventory=0)
