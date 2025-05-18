@@ -1,5 +1,3 @@
-from src.core.market_simulator import MarketSimulator
-import numpy as np
 
 import numpy as np
 from src.core.market_simulator import MarketSimulator

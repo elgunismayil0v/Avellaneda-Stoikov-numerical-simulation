@@ -1,5 +1,5 @@
 # simulations/arithmetic_brownian.py
-from core.market_simulator import MarketSimulator
+from src.core.market_simulator import MarketSimulator
 import numpy as np
 
 import numpy as np
@@ -9,6 +9,7 @@ class ArithmeticBrownianMotion(MarketSimulator):
     def __init__(self, S0: float, sigma: float, seed: int):
         self.S0 = S0
         self.sigma = sigma
+        self.seed = seed
 
     def simulate(self, steps: int) -> np.ndarray:
         np.random.seed(self.seed)
@@ -21,5 +22,3 @@ class ArithmeticBrownianMotion(MarketSimulator):
             S[i] = S[i - 1] + self.sigma * np.sqrt(dt) * Z[i - 1]
 
         return S
-
-
