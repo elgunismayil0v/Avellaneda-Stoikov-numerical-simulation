@@ -7,7 +7,7 @@ from src.strategies.symmetric_strategy import SymmetricStrategy
 from src.executions.poisson_execution_abm import PoissonExecutionAbm
 from src.executions.poisson_execution_gbm import PoissonExecutionGbm
 from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
-from src.simulations.geometric_browian import GeometricBrownianMotion
+from src.simulations.geometric_brownian import GeometricBrownianMotion
 from src.utils.simulation_helpers import run_strategy, run_monte_carlo, plot_strategy_diagnostics
 
 
