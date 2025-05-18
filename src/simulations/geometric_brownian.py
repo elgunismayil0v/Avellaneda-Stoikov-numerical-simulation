@@ -1,4 +1,4 @@
-from core.market_simulator import MarketSimulator
+from src.core.market_simulator import MarketSimulator
 import numpy as np
 
 class GeometricBrownianMotion(MarketSimulator):

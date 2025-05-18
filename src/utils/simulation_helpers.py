@@ -20,7 +20,7 @@ def run_strategy(
 ):
     T = steps * dt 
     # Initialize the mid-price process (ABM or GBM) and simulate a price path over steps
-    market = simulator(S0=100, sigma=sigma, seed=seed)
+    market = simulator(S0=100, sigma=sigma)
     prices = market.simulate(steps)
     
     # Instantiate the quoting strategy (e.g., Avellaneda-Stoikov), passing in model parameters.
