@@ -28,7 +28,7 @@ class SimulationRunner:
         self.steps = int(T / dt)
 
     def run(self):
-        mid_prices = self.market.simulate(self.steps, self.dt)
+        mid_prices = self.market.simulate()
 
         for i in range(self.steps):
             t = i * self.dt
