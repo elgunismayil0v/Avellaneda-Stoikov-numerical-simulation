@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-
+import seaborn as sns
 from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyAbm
 from src.strategies.avellaneda_stoikov_gbm import AvellanedaStoikovStrategyGbm
 from src.strategies.symmetric_strategy import SymmetricStrategy
@@ -92,14 +92,22 @@ def main():
         # Histogram of final PnLs
         plt.figure(figsize=(10, 6))
         for label, group in df_all.groupby("strategy"):
-            plt.hist(group["pnl"], bins=30, alpha=0.6, label=label)
+            sns.kdeplot(
+                group["pnl"],
+                label=label,
+                fill=False,
+                linewidth=2.0,
+                alpha=0.4,
+                bw_adjust=0.5
+            )
         plt.title("Final PnL Distribution (Monte Carlo)")
         plt.xlabel("PnL")
-        plt.ylabel("Count")
+        plt.ylabel("Density")
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
         plt.show()
+
 
         # Summary stats
         summary = df_all.groupby("strategy")["pnl"].agg(["mean", "std"])
