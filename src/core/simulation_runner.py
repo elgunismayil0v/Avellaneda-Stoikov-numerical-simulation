@@ -22,7 +22,6 @@ class SimulationRunner:
 
     def run(self):
 
-
         mid_prices = self.market.simulate(self.steps)
 
 

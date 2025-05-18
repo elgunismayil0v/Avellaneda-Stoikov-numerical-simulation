@@ -19,6 +19,8 @@ class GeometricBrownianMotion(MarketSimulator):
             S[i] = S[i - 1] * np.exp(self.sigma * np.sqrt(dt) * Z[i - 1])
 
         return S
+    
+
 
     
 
