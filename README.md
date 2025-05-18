@@ -2,7 +2,7 @@
 # Avellaneda-Stoikov-numerical-simulation
 # Preparing the enviornment
 ### 	Required steps to run the program
-	- Install > python 3.13.1 or above
+	- Install > python 3.13.1 or above (for windows download from here https://www.python.org/downloads/release/python-3131/)
 	- Create virtual env -> python -m venv venv
 	- Activate it -> source venv/bin/activate (for windows command is just -> activate)
 	- Get source code -> git clone https://github.com/elgunismayil0v/Avellaneda-Stoikov-numerical-simulation.git
