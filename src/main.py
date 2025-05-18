@@ -3,45 +3,41 @@ import pandas as pd
 
 from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
 from src.simulations.geometric_browian import GeometricBrownianMotion
-
-from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyAbm
-from src.strategies.avellaneda_stoikov_gbm import AvellanedaStoikovStrategyGbm
-from src.strategies.symmetric_strategy import SymmetricStrategy
-
-from src.executions.poisson_execution_abm import PoissonExecutionAbm
-from src.executions.poisson_execution_gbm import PoissonExecutionGbm
 from src.core.simulation_runner import SimulationRunner
 from src.core.inventory_manager import InventoryManager
 from src.core.data_logger import DataLogger
 
 
 def run_strategy(
-    simulator,
-    strategy_class,
-    execution_class,
-    strategy_name,
-    market_name,
-    steps,
-    dt,
-    gamma,
-    k,
-    sigma,
+    simulator, # Class or function to simulate mid-price (ABM or GBM)
+    strategy_class, # Class that implements the quoting strategy
+    execution_class, # Class that models execution probability (Poisson-based)
+    strategy_name, # Label for strategy (used for logging or plotting)
+    market_name, # Label for market process (ABM or GBM)
+    steps,  # Number of discrete time steps in the simulation
+    dt, # Time increment (Δt)
+    gamma, # Risk aversion parameter
+    k, # Market depth (for execution intensity λ(δ))
+    sigma,  # Volatility of the mid-price process
     seed: int = 42
 ):
-    T = steps * dt
+    T = steps * dt 
+    # Initialize the mid-price process (ABM or GBM) and simulate a price path over steps
     market = simulator(S0=100, sigma=sigma, seed=seed)
     prices = market.simulate(steps)
-
-    # Instantiate the strategy
+    
+    # Instantiate the quoting strategy (e.g., Avellaneda-Stoikov), passing in model parameters.
     strategy = strategy_class(gamma=gamma, sigma=sigma, k=k)
 
-    # Instantiate the matching execution class
+    # Create the Poisson-based trade execution model with a base intensity A and decay rate k
     execution = execution_class(A=100, k=k)
 
-    # Set up simulation infrastructure
+    # Start with zero inventory and zero cash. Prepare the logging system to track simulation data.
     inventory = InventoryManager(initial_cash=0, initial_inventory=0)
     logger = DataLogger()
 
+    # Initialize the simulation engine and run it. 
+    # This simulates quote placements, executions, and inventory updates over time.
     runner = SimulationRunner(
         market=market,
         pricing_strategy=strategy,
@@ -60,16 +56,16 @@ def run_strategy(
     return df
 
 def run_monte_carlo(
-    simulator,
-    strategy_class,
-    execution_class,
-    strategy_name,
-    market_name,
-    steps,
-    dt,
-    gamma,
-    k,
-    sigma,
+    simulator, # Class or function to simulate mid-price (ABM or GBM)
+    strategy_class, # Class that implements the quoting strategy
+    execution_class, # Class that models execution probability (Poisson-based)
+    strategy_name, # Label for strategy (used for logging or plotting)
+    market_name, # Label for market process (ABM or GBM)
+    steps,  # Number of discrete time steps in the simulation
+    dt, # Time increment (Δt)
+    gamma, # Risk aversion parameter
+    k, # Market depth (for execution intensity λ(δ))
+    sigma,  # Volatility of the mid-price process
     n_simulations
 ):
     all_results = []
@@ -99,7 +95,7 @@ def main():
     gamma = 1.5
     k = 1.0
     sigma = 0.2
-    n_simulations = 1000
+    n_simulations = 1
 
     from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyAbm
     from src.strategies.avellaneda_stoikov_gbm import AvellanedaStoikovStrategyGbm
