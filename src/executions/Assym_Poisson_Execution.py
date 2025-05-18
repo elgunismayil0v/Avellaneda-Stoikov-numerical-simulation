@@ -3,7 +3,7 @@
 from src.core.order_execution import OrderExecution
 from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
 import numpy as np
-from src.strategies.avellaneda_stoikov_for_abm import AvellanedaStoikovStrategyAbm
+from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyAbm
 
 class AsymPoissonOrderExecution(OrderExecution):
     """
