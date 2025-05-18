@@ -17,7 +17,7 @@ class ArithmeticBrownianMotion(MarketSimulator):
         sigma (float): Volatility coefficient (standard deviation).
     """
 
-    def __init__(self, S0: float, sigma: float, NoOfSteps: int):
+    def __init__(self, NoOfSteps: int, S0: float, sigma: float):
         """
         Initializes the ABM simulator with the given parameters.
 

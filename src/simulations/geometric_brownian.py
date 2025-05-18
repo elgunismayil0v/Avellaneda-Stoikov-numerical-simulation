@@ -22,6 +22,7 @@ class GeometricBrownianMotion(MarketSimulator):
         self.NoOfStep = NoOfStep
         self.S0 = S0
         self.sigma = sigma
+        
     def simulate(self) -> np.ndarray:
         """
         Runs the Geometric Brownian Motion simulation.
