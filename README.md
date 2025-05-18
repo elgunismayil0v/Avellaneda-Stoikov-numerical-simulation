@@ -3,12 +3,12 @@
 # Preparing the enviornment
 ### 	Required steps to run the program
 	- Install > python 3.13.1 or above
-	- Create virtual env > python -m venv venv
-	- Activate it > source venv/bin/activate
-	- Get source code > git clone https://github.com/elgunismayil0v/Avellaneda-Stoikov-numerical-simulation.git
-	- Move to project polder > cd Avellaneda-Stoikov-numerical-simulation
-	- Install required libraries > pip install -r requirements.txt
-	- Run the program > pyhon src/main.py
+	- Create virtual env -> python -m venv venv
+	- Activate it -> source venv/bin/activate
+	- Get source code -> git clone https://github.com/elgunismayil0v/Avellaneda-Stoikov-numerical-simulation.git
+	- Move to project polder -> cd Avellaneda-Stoikov-numerical-simulation
+	- Install required libraries -> pip3 install -r requirements.txt or (pip install -r requirements.txt)
+	- Run the program -> python src/main.py
 
 
 ## Class Diagram Overview:
