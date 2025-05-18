@@ -29,7 +29,19 @@ class ArithmeticBrownianMotion(MarketSimulator):
         """
         self.S0 = S0
         self.sigma = sigma
+    def __init__(self, S0: float, sigma: float, NoOfSteps: int):
+        """
+        Initializes the ABM simulator with the given parameters.
 
+        Args:
+            NoOfStep (int): Number of steps in the simulation.
+            S0 (float): Initial price level.
+            sigma (float): Volatility of the price process.
+            seed (int): Random seed for reproducibility.
+        """
+        self.S0 = S0
+        self.sigma = sigma
+        self.NoOfSteps = NoOfSteps
     def simulate(self, steps: int, dt: float) -> np.ndarray:
         """
         Runs the simulation of Arithmetic Brownian Motion.
@@ -44,6 +56,24 @@ class ArithmeticBrownianMotion(MarketSimulator):
 
         # Generate the price path
         for i in range(1, steps + 1):
+            S[i] = S[i - 1] + self.sigma * np.sqrt(dt) * Z[i - 1]
+
+        return S
+
+     def simulate(self) -> np.ndarray:
+        """
+        Runs the simulation of Arithmetic Brownian Motion.
+
+        Returns:
+            np.ndarray: Simulated path of asset prices as a NumPy array.
+        """
+        dt = 1 / self.NoOfSteps
+        S = np.zeros(self.NoOfSteps + 1)  # Initialize price array
+        S[0] = self.S0  # Set initial price
+        Z = np.random.normal(0, 1, self.NoOfSteps)  # Generate standard normal random variables
+
+        # Generate the price path
+        for i in range(1, self.NoOfSteps + 1):
             S[i] = S[i - 1] + self.sigma * np.sqrt(dt) * Z[i - 1]
 
         return S
