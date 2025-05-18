@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from src.strategies.avellaneda_stoikov_for_abm import AvellanedaStoikovStrategy
+from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyABM
 from strategies.symmetric_strategy import SymmetricStrategy
 
 
@@ -13,7 +13,7 @@ class TestPricingStrategies(unittest.TestCase):
         self.sigma = 2.0
         self.k = 1.5
 
-        self.astoikov = AvellanedaStoikovStrategy(
+        self.astoikov = AvellanedaStoikovStrategyABM(
             gamma=self.gamma,
             sigma=self.sigma,
             k=self.k

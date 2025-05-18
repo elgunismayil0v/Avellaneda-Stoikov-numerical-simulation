@@ -1,6 +1,5 @@
-import itertools
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from simulations.arithmetic_brownian import ArithmeticBrownianMotion
 from strategies.avellaneda_stoikov_for_gbm import AvellanedaStoikovGBM
