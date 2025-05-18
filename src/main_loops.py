@@ -10,17 +10,19 @@ from core.data_logger import DataLogger
 from core.simulation_runner import SimulationRunner
 
 def main():
+    # Fixed value for A
+    A = 140
+
     # Define parameter grids
-    sigma_values = [1, 2, 3]
+    sigma_values = [0.1, 0.2, 0.3]
     gamma_values = [0.05, 0.1, 0.2]
     k_values = [1.0, 1.5, 2.0]
-    A_values = [100, 140, 180]
 
     # Initialize list to collect results
     results = []
 
     # Iterate over all combinations of parameters
-    for sigma, gamma, k, A in itertools.product(sigma_values, gamma_values, k_values, A_values):
+    for sigma, gamma, k in itertools.product(sigma_values, gamma_values, k_values):
         # Initialize components with current parameters
         market = ArithmeticBrownianMotion(S0=100, sigma=sigma)
         strategy = AvellanedaStoikovStrategy(gamma=gamma, sigma=sigma, k=k)
@@ -56,7 +58,6 @@ def main():
             'sigma': sigma,
             'gamma': gamma,
             'k': k,
-            'A': A,
             'final_pnl': final_pnl,
             'avg_spread': avg_spread,
             'trades_executed': trades_executed
@@ -66,8 +67,8 @@ def main():
     results_df = pd.DataFrame(results)
     results_df.to_csv('simulation_results.csv', index=False)
 
-    # Optional: Plotting for a specific parameter set
-    subset = results_df[(results_df['sigma'] == 2) & (results_df['k'] == 1.5) & (results_df['A'] == 140)]
+    #Plotting for a specific parameter set
+    subset = results_df[(results_df['sigma'] == 0.2) & (results_df['k'] == 1.5)]
     plt.plot(subset['gamma'], subset['final_pnl'], marker='o')
     plt.xlabel('Gamma')
     plt.ylabel('Final PnL')
