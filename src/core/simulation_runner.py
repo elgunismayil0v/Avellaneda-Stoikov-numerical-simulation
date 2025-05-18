@@ -1,11 +1,11 @@
 # core/simulation_runner.py
 
-from src.core.data_logger import DataLogger
-from src.core.inventory_manager import InventoryManager
-from src.core.market_simulator import MarketSimulator
-from src.core.order_execution import OrderExecution
-from src.core.pricing_strategy import PricingStrategy
-
+from core.data_logger import DataLogger
+from core.inventory_manager import InventoryManager
+from core.market_simulator import MarketSimulator
+from core.order_execution import OrderExecution
+from core.pricing_strategy import PricingStrategy
+import matplotlib.pyplot as plt
 
 # core/simulation_runner.py
 
@@ -19,7 +19,6 @@ class SimulationRunner:
         self.dt = dt
         self.T = T
         self.steps = int(T / dt)
-        
 
     def run(self):
 
