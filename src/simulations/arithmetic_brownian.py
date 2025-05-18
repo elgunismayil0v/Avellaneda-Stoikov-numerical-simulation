@@ -1,5 +1,5 @@
 # simulations/arithmetic_brownian.py
-from src.core.market_simulator import MarketSimulator
+from core.market_simulator import MarketSimulator
 import numpy as np
 
 class ArithmeticBrownianMotion(MarketSimulator):

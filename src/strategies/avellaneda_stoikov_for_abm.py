@@ -1,7 +1,7 @@
 # strategies/avellaneda_stoikov.py
 
-from src.core.pricing_strategy import PricingStrategy
-from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
+from core.pricing_strategy import PricingStrategy
+from simulations.arithmetic_brownian import ArithmeticBrownianMotion
 import numpy as np
 
 class AvellanedaStoikovStrategyAbm(PricingStrategy):

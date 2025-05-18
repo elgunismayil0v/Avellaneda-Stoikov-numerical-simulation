@@ -1,5 +1,5 @@
-from src.core.pricing_strategy import PricingStrategy
-from src.simulations.geometric_browian import GeometricBrownianMotion
+from core.pricing_strategy import PricingStrategy
+from simulations.geometric_browian import GeometricBrownianMotion
 import numpy as np
 
 class AvellanedaStoikovGBM(PricingStrategy):
