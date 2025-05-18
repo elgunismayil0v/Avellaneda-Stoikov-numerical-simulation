@@ -66,7 +66,7 @@ def run_monte_carlo(
     gamma, # Risk aversion parameter
     k, # Market depth (for execution intensity λ(δ))
     sigma,  # Volatility of the mid-price process
-    n_simulations
+    n_simulations # Number of Monte Carlo simulations to run
 ):
     all_results = []
 
@@ -95,7 +95,7 @@ def main():
     gamma = 1.5
     k = 1.0
     sigma = 0.2
-    n_simulations = 1
+    n_simulations = 1000
 
     from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyAbm
     from src.strategies.avellaneda_stoikov_gbm import AvellanedaStoikovStrategyGbm
@@ -124,14 +124,14 @@ def main():
     ))
 
     df_all = pd.concat(dfs, ignore_index=True)
-
+    
     # Plot histogram of final PnLs
     plt.figure(figsize=(10, 6))
     for label, group in df_all.groupby("strategy"):
-        plt.hist(group["pnl"], alpha=0.6, label=label, density=True)
+        plt.hist(group["pnl"], alpha=0.6, label=label)
     plt.title("Final PnL Distribution (1000 simulations)")
     plt.xlabel("PnL")
-    plt.ylabel("Density")
+    plt.ylabel("Counts")
     plt.legend()
     plt.grid(True)
 

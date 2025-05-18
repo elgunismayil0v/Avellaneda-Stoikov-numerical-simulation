@@ -13,18 +13,10 @@ class AvellanedaStoikovStrategyGbm(PricingStrategy):
         self.k = k
         self.sigma = sigma
 
-    def calculate_reservation_price(self, current_price: float, inventory: int, time_remaining: float) -> float:
-        """
-        GBM version: includes exponential decay and current_price^2 scaling.
-        """
-        decay = 1 - np.exp(-self.sigma**2 * time_remaining)
-        return current_price - inventory * self.gamma * current_price**2 * decay
+    def calculate_reservation_price(self, current_price, inventory, time_remaining):
+        return current_price - inventory * self.gamma * self.sigma**2 * time_remaining
 
-    def calculate_spread(self, current_price: float, inventory: int, time_remaining: float) -> tuple[float, float]:
-        """
-        GBM version: spread grows with current_price^2 and volatility decay.
-        """
-        decay = 1 - np.exp(-self.sigma**2 * time_remaining)
-        spread = self.gamma * current_price**2 * decay
+    def calculate_spread(self, current_price, inventory, time_remaining):
+        spread = self.gamma * self.sigma**2 * time_remaining
         spread += (2 / self.gamma) * np.log(1 + self.gamma / self.k)
-        return spread / 2, spread / 2  # bid_spread, ask_spread
+        return spread / 2, spread / 2
