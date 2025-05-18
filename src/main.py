@@ -53,6 +53,9 @@ def run_strategy(
     df = logger.get_dataframe()
     df["pnl"] = df["cash"] + df["inventory"] * df["mid_prices"]
     df["strategy"] = f"{strategy_name} ({market_name})"
+    df.plot(y=['mid_prices', 'reservation_prices', 'bid_prices', 'ask_prices'])
+    plt.title('Price Dynamics')
+    plt.show()
     return df
 
 def run_monte_carlo(
@@ -95,7 +98,7 @@ def main():
     gamma = 1.5
     k = 1.0
     sigma = 0.2
-    n_simulations = 1000
+    n_simulations = 1
 
     from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyAbm
     from src.strategies.avellaneda_stoikov_gbm import AvellanedaStoikovStrategyGbm
