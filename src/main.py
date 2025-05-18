@@ -22,7 +22,7 @@ def main():
 
     # Flags
     show_plots = True
-    run_mc = True
+    run_mc = False
 
     # Strategy configurations
     strategy_configs = [
@@ -88,7 +88,7 @@ def main():
             mc_results.append(df_mc)
 
         df_all = pd.concat(mc_results, ignore_index=True)
-
+        df_all.to_csv("Monte_Carlo_Simulation.csv")
         # Histogram of final PnLs
         plt.figure(figsize=(10, 6))
         for label, group in df_all.groupby("strategy"):
