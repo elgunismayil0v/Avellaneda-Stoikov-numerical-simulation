@@ -30,7 +30,7 @@ def run_simulations(strategy_class, strategy_name, sigma_values, gamma_values, k
         for _ in range(num_runs):
             # Initialize components
             market = ArithmeticBrownianMotion(S0=S0, sigma=sigma)
-            strategy = AvellanedaStoikovStrategy(gamma=gamma, sigma=sigma, k=k)
+            strategy = AvellanedaStoikovGBM(gamma=gamma, sigma=sigma, k=k)
             execution = PoissonOrderExecution(A=A, k=k)
             inventory = InventoryManager(initial_cash=0, initial_inventory=0)
             logger = DataLogger()
