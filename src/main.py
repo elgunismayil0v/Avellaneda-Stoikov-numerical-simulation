@@ -107,8 +107,10 @@ def main():
     from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyAbm
     from src.strategies.avellaneda_stoikov_gbm import AvellanedaStoikovStrategyGbm
     from src.strategies.symmetric_strategy import SymmetricStrategy
+    from src.strategies.asymmetric_avellaneda import AsymmetricAvellanedaStoikovStrategy
     from src.executions.poisson_execution_abm import PoissonExecutionAbm
     from src.executions.poisson_execution_gbm import PoissonExecutionGbm
+    from src.executions.assym_poisson_execution import AsymPoissonOrderExecution
 
     dfs = []
 
@@ -125,6 +127,12 @@ def main():
     ))
 
     # Symmetric ABM
+    dfs.append(run_monte_carlo(
+        ArithmeticBrownianMotion, SymmetricStrategy, PoissonExecutionAbm,
+        "Symmetric", "ABM", steps, dt, gamma, k, sigma, n_simulations
+    ))
+
+    # Asymmetric 
     dfs.append(run_monte_carlo(
         ArithmeticBrownianMotion, SymmetricStrategy, PoissonExecutionAbm,
         "Symmetric", "ABM", steps, dt, gamma, k, sigma, n_simulations
