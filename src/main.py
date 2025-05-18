@@ -8,23 +8,24 @@ from src.executions.poisson_execution_abm import PoissonExecutionAbm
 from src.executions.poisson_execution_gbm import PoissonExecutionGbm
 from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
 from src.simulations.geometric_brownian import GeometricBrownianMotion
+# Import helper functions (single run, monte carlo, plotting)
 from src.utils.simulation_helpers import run_strategy, run_monte_carlo, plot_strategy_diagnostics
 
 
 def main():
     # Simulation parameters
-    steps = 300
-    dt = 0.005
-    gamma = 1.5
-    k = 1.0
-    sigma = 0.2
-    n_simulations = 1000
+    steps = 300            # Number of time steps per simulation
+    dt = 0.005             # Time increment (Δt)
+    gamma = 1.5            # Risk aversion coefficient
+    k = 1.0                # Market depth parameter
+    sigma = 0.2            # Volatility of the mid-price process
+    n_simulations = 1000   # Number of Monte Carlo simulation runs
 
     # Flags
-    show_plots = True
-    run_mc = False
+    show_plots = True   # Whether to show detailed single-run plots
+    run_mc = False      # Whether to run Monte Carlo simulation
 
-    # Strategy configurations
+    # Define different strategies and market models to evaluate
     strategy_configs = [
         {
             "name": "Avellaneda",
@@ -49,7 +50,9 @@ def main():
         }
     ]
 
-    # Visualize one run per strategy
+    # ----------------------
+    # SINGLE-RUN SIMULATION
+    # ----------------------
     if show_plots:
         for config in strategy_configs:
             df = run_strategy(
@@ -68,10 +71,13 @@ def main():
             plot_title = f"{config['name']} ({config['market']})"
             plot_strategy_diagnostics(df, plot_title)
 
-    # Run Monte Carlo for final PnL distribution
+    # ----------------------
+    # MONTE CARLO SIMULATION
+    # ----------------------
     if run_mc:
         mc_results = []
         for config in strategy_configs:
+            # Run N simulations and collect final PnL statistics
             df_mc = run_monte_carlo(
                 simulator=config["simulator"],
                 strategy_class=config["strategy_class"],
@@ -86,10 +92,11 @@ def main():
                 n_simulations=n_simulations
             )
             mc_results.append(df_mc)
-
+        # Combine results from all strategy configurations
         df_all = pd.concat(mc_results, ignore_index=True)
+        # Save the full simulation results (optional)
         df_all.to_csv("Monte_Carlo_Simulation.csv")
-        # Histogram of final PnLs
+        # Plot density curves of final PnLs (one per strategy)
         plt.figure(figsize=(10, 6))
         for label, group in df_all.groupby("strategy"):
             sns.kdeplot(
@@ -109,12 +116,12 @@ def main():
         plt.show()
 
 
-        # Summary stats
+        # Print summary statistics (mean, std, Sharpe ratio)
         summary = df_all.groupby("strategy")["pnl"].agg(["mean", "std"])
         summary["sharpe"] = summary["mean"] / summary["std"]
         print("\nSummary Statistics (Final PnL):")
         print(summary)
 
-
+# Entry point of the script
 if __name__ == "__main__":
     main()
