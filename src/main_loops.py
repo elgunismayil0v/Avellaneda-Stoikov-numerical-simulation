@@ -1,117 +1,214 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
+from itertools import product
 
-from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
+from src.strategies.avellaneda_stoikov_abm import AvellanedaStoikovStrategyAbm
 from src.strategies.avellaneda_stoikov_gbm import AvellanedaStoikovStrategyGbm
 from src.strategies.symmetric_strategy import SymmetricStrategy
-from src.executions.poisson_execution import PoissonOrderExecution
-from src.core.inventory_manager import InventoryManager
-from src.core.data_logger import DataLogger
-from src.core.simulation_runner import SimulationRunner
-from src.utils.simulation_helpers import run_strategy
+from src.strategies.asymmetric_avellaneda import AsymmetricAvellanedaStoikovStrategy
+from src.executions.poisson_execution_abm import PoissonExecutionAbm
+from src.executions.poisson_execution_gbm import PoissonExecutionGbm
+from src.executions.asym_poisson_execution import AsymPoissonOrderExecution
+from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
+from src.simulations.geometric_brownian import GeometricBrownianMotion
 
-import itertools
+from src.utils.simulation_helpers import run_strategy, run_monte_carlo, plot_strategy_diagnostics
 
-import itertools
-import pandas as pd
+# -------------------------------
+# Strategy Configurations (shared)
+# -------------------------------
+strategy_configs = [
+    {
+        "name": "Avellaneda",
+        "market": "ABM",
+        "simulator": ArithmeticBrownianMotion,
+        "strategy_class": AvellanedaStoikovStrategyAbm,
+        "execution_class": PoissonExecutionAbm
+    },
+    {
+        "name": "Avellaneda",
+        "market": "GBM",
+        "simulator": GeometricBrownianMotion,
+        "strategy_class": AvellanedaStoikovStrategyGbm,
+        "execution_class": PoissonExecutionGbm
+    },
+    {
+        "name": "Symmetric",
+        "market": "ABM",
+        "simulator": ArithmeticBrownianMotion,
+        "strategy_class": SymmetricStrategy,
+        "execution_class": PoissonExecutionAbm
+    },
+    {
+        "name": "Asymmetric",
+        "market": "ABM",
+        "simulator": ArithmeticBrownianMotion,
+        "strategy_class": AsymmetricAvellanedaStoikovStrategy,
+        "execution_class": AsymPoissonOrderExecution
+    }
+]
 
-def run_simulations(
-    simulator,             # Class or function to simulate mid-price (e.g., GBM or ABM)
-    strategy_class,        # Class that implements quoting strategy
-    execution_class,       # Class that models execution logic
-    strategy_name,         # Label for strategy (for plots)
-    market_name,           # Label for the market model (ABM/GBM)
-    sigma_values,          # List of volatilities
-    gamma_values,          # List of risk aversion parameters
-    k_values,              # List of market depth parameters
-    steps_values,          # List of step counts
-    dt_values,             # List of time increments
-    seed: int = 42         # Random seed
-):
+# -----------------------
+# Original main() logic
+# -----------------------
+def main():
+    steps = 300
+    dt = 0.005
+    gamma = 1.5
+    k = 1.0
+    sigma = 0.2
+    n_simulations = 1000
+
+    show_plots = True
+    run_mc = False
+
+    if show_plots:
+        for config in strategy_configs:
+            df = run_strategy(
+                simulator=config["simulator"],
+                strategy_class=config["strategy_class"],
+                execution_class=config["execution_class"],
+                strategy_name=config["name"],
+                market_name=config["market"],
+                steps=steps,
+                dt=dt,
+                gamma=gamma,
+                k=k,
+                sigma=sigma,
+                seed=0
+            )
+            plot_title = f"{config['name']} ({config['market']})"
+            plot_strategy_diagnostics(df, plot_title)
+
+    if run_mc:
+        mc_results = []
+        for config in strategy_configs:
+            df_mc = run_monte_carlo(
+                simulator=config["simulator"],
+                strategy_class=config["strategy_class"],
+                execution_class=config["execution_class"],
+                strategy_name=config["name"],
+                market_name=config["market"],
+                steps=steps,
+                dt=dt,
+                gamma=gamma,
+                k=k,
+                sigma=sigma,
+                n_simulations=n_simulations
+            )
+            mc_results.append(df_mc)
+
+        df_all = pd.concat(mc_results, ignore_index=True)
+        df_all.to_csv("Monte_Carlo_Simulation.csv")
+
+        plt.figure(figsize=(10, 6))
+        for label, group in df_all.groupby("strategy"):
+            sns.kdeplot(group["pnl"], label=label, fill=False, linewidth=2.0, alpha=0.4, bw_adjust=0.5)
+        plt.title("Final PnL Distribution (Monte Carlo)")
+        plt.xlabel("PnL")
+        plt.ylabel("Density")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+        summary = df_all.groupby("strategy")["pnl"].agg(["mean", "std"])
+        summary["sharpe"] = summary["mean"] / summary["std"]
+        print("\nSummary Statistics (Final PnL):")
+        print(summary)
+
+# ------------------------------------------
+# Sensitivity analysis across 27 combinations
+# ------------------------------------------
+def sensitivity_analysis():
+    sigma_values = [1, 2, 3]
+    gamma_values = [0.05, 0.1, 0.5]
+    k_values = [1.0, 1.5, 2.0]
+
+    steps = 300
+    dt = 0.005
+    n_simulations = 500  # Adjust as needed
+
     all_results = []
 
-    for sigma, gamma, k, steps, dt in itertools.product(
-        sigma_values, gamma_values, k_values, steps_values, dt_values
-    ):
-        df = run_strategy(
-            simulator=simulator,
-            strategy_class=strategy_class,
-            execution_class=execution_class,
-            strategy_name=strategy_name,
-            market_name=market_name,
-            steps=steps,
-            dt=dt,
-            gamma=gamma,
-            k=k,
-            sigma=sigma,
-            seed=seed
-        )
-        df["sigma"] = sigma
-        df["gamma"] = gamma
-        df["k"] = k
-        df["steps"] = steps
-        df["dt"] = dt
-        all_results.append(df)
+    for sigma, gamma, k in product(sigma_values, gamma_values, k_values):
+        print(f"\nRunning: sigma={sigma}, gamma={gamma}, k={k}")
+        for config in strategy_configs:
+            df_mc = run_monte_carlo(
+                simulator=config["simulator"],
+                strategy_class=config["strategy_class"],
+                execution_class=config["execution_class"],
+                strategy_name=config["name"],
+                market_name=config["market"],
+                steps=steps,
+                dt=dt,
+                gamma=gamma,
+                k=k,
+                sigma=sigma,
+                n_simulations=n_simulations
+            )
+            mean_pnl = df_mc["pnl"].mean()
+            print(f"  Strategy={config['name']} ({config['market']}), Mean PnL={mean_pnl:.2f}")
 
-    return pd.concat(all_results, ignore_index=True)
+            df_mc["sigma"] = sigma
+            df_mc["gamma"] = gamma
+            df_mc["k"] = k
+            all_results.append(df_mc)
 
+    df_sensitivity = pd.concat(all_results, ignore_index=True)
+    df_sensitivity.to_csv("Sensitivity_Analysis_Results.csv", index=False)
+    print("\nSaved sensitivity analysis results to 'Sensitivity_Analysis_Results.csv'.")
 
+# -----------------------------------------
+# Plot Mean Profit vs Gamma for (σ, k) pairs
+# -----------------------------------------
+def plot_mean_pnl_vs_gamma(csv_file="Sensitivity_Analysis_Results.csv", strategy_filter=None):
+    df = pd.read_csv(csv_file)
 
-def main():
-    sigma_values = [1, 2, 3]
-    gamma_values = [0.05, 0.1, 0.2]
-    k_values = [1.0, 1.5, 2.0]
-    steps_values = [300, 400]
-    dt_values = [0.005, 0.01]
-    num_runs = 1000
+    if strategy_filter:
+        df = df[df["strategy"] == strategy_filter]
 
-    # Corrected: now includes steps_values and dt_values
-    inv_df = run_simulations(
-        AvellanedaStoikovStrategyGbm, 
-        'Inventory',
-        sigma_values, 
-        gamma_values, 
-        k_values, 
-        steps_values,      
-        dt_values,          
-        num_runs            
+    if df.empty:
+        print("No data found for the given strategy filter.")
+        return
+
+    summary = (
+        df.groupby(["sigma", "gamma", "k"])["pnl"]
+        .mean()
+        .reset_index()
     )
 
-    sym_df = run_simulations(
-        SymmetricStrategy, 
-        'Symmetric',
-        sigma_values, 
-        gamma_values, 
-        k_values, 
-        steps_values,       
-        dt_values,          
-        num_runs            
-    )
+    plt.figure(figsize=(12, 6))
+    found = False
+    for (sigma, k), group in summary.groupby(["sigma", "k"]):
+        if not group.empty:
+            label = f"σ={sigma}, k={k}"
+            plt.plot(group["gamma"], group["pnl"], marker="o", label=label)
+            found = True
 
-    results_df = pd.concat([inv_df, sym_df], ignore_index=True)
-    results_df.to_csv('simulation_results.csv', index=False)
-    print("Saved results to simulation_results.csv")
+    if not found:
+        print("No valid data to plot.")
+        return
 
-    # Read back CSV
-    df = pd.read_csv('simulation_results.csv')
-    print("Loaded results from simulation_results.csv")
-
-    # Example plotting: mean profit vs gamma for each (sigma, k) in inventory strategy
-    plt.figure(figsize=(8, 5))
-    for sigma in sigma_values:
-        for k in k_values:
-            subset = df[(df['strategy'] == 'Inventory') &
-                        (df['sigma'] == sigma) &
-                        (df['k'] == k)]
-            plt.plot(subset['gamma'], subset['avg_profit'], marker='o',
-                     label=f"σ={sigma}, k={k}")
-
-    plt.xlabel('Gamma')
-    plt.ylabel('Mean Profit')
-    plt.title('Inventory Strategy: Mean Profit vs Gamma')
-    plt.legend()
+    plt.title("Inventory Strategy: Mean Profit vs Gamma")
+    plt.xlabel("Gamma")
+    plt.ylabel("Mean Profit")
+    plt.legend(title="(σ, k)", bbox_to_anchor=(1.05, 1), loc="upper left")
+    plt.grid(True)
     plt.tight_layout()
     plt.show()
 
-if __name__ == '__main__':
-    main()
+# -----------------------------
+# Entry point: choose what to run
+# -----------------------------
+if __name__ == "__main__":
+    # Uncomment one at a time
+
+    # main()  # Single-run plots and/or original Monte Carlo
+
+    sensitivity_analysis()  # Run all 27 combinations
+    plot_mean_pnl_vs_gamma(strategy_filter="Symmetric (ABM)")  # Plot only for 'Symmetric' strategy (change if needed)
+    plot_mean_pnl_vs_gamma(strategy_filter="Avellaneda (ABM)")  # Plot only for 'Avellaneda' strategy (change if needed)
+    plot_mean_pnl_vs_gamma(strategy_filter="Avellaneda (GBM)")  # Plot only for 'Avellaneda' strategy (change if needed)
+    plot_mean_pnl_vs_gamma(strategy_filter="Asymmetric (ABM)")  # Plot only for 'Avellaneda' strategy (change if needed)
