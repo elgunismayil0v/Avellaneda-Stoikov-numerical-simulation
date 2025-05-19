@@ -1,3 +1,4 @@
+import itertools
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -61,7 +62,7 @@ def run_simulations(strategy_class, strategy_name, sigma_values, gamma_values, k
             'sigma': sigma,
             'gamma': gamma,
             'k': k,
-            'spread': sum(spreads)/len(spreads),
+            'spread': sum(spreads) / len(spreads),
             'mean_profit': pd.Series(profits).mean(),
             'std_profit': pd.Series(profits).std(),
             'mean_q': pd.Series(final_qs).mean(),
@@ -71,43 +72,44 @@ def run_simulations(strategy_class, strategy_name, sigma_values, gamma_values, k
     return pd.DataFrame(results)
 
 
+def plot_strategy(df, strategy_name, sigma_values, k_values):
+    """
+    Plots mean profit vs gamma for a given strategy DataFrame.
+    """
+    plt.figure(figsize=(8, 5))
+    subset_df = df[df['strategy'] == strategy_name]
+    for sigma in sigma_values:
+        for k in k_values:
+            sub = subset_df[(subset_df['sigma'] == sigma) & (subset_df['k'] == k)]
+            plt.plot(sub['gamma'], sub['mean_profit'], marker='o', label=f"σ={sigma}, k={k}")
+    plt.xlabel('Gamma')
+    plt.ylabel('Mean Profit')
+    plt.title(f'{strategy_name} Strategy: Mean Profit vs Gamma')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f'{strategy_name.lower()}_strategy_plot.png')
+    plt.show()
+
+
 def main():
-    # Parameter grids as requested
-    sigma_values = [1, 2, 3]
+    # Parameter grids
+    sigma_values = [0.1, 0.2, 0.3]
     gamma_values = [0.05, 0.1, 0.2]
     k_values = [1.0, 1.5, 2.0]
     num_runs = 1000
 
-    # Run inventory (Avellaneda-Stoikov) strategy
+    # Run Avellaneda-Stoikov Strategy
     inv_df = run_simulations(AvellanedaStoikovGBM, 'Inventory', sigma_values, gamma_values, k_values, num_runs)
+    inv_df.to_csv('inventory_results.csv', index=False)
 
-    # Run symmetric strategy
+    # Run Symmetric Strategy
     sym_df = run_simulations(SymmetricStategy, 'Symmetric', sigma_values, gamma_values, k_values, num_runs)
+    sym_df.to_csv('symmetric_results.csv', index=False)
 
-    # Combine results and save
-    results_df = pd.concat([inv_df, sym_df], ignore_index=True)
-    results_df.to_csv('simulation_results.csv', index=False)
+    # Plot results separately
+    plot_strategy(inv_df, 'Inventory', sigma_values, k_values)
+    plot_strategy(sym_df, 'Symmetric', sigma_values, k_values)
 
-    # Read back CSV
-    df = pd.read_csv('simulation_results.csv')
-    print("Loaded results from simulation_results.csv")
-
-    # Example plotting: mean profit vs gamma for each (sigma, k) in inventory strategy
-    plt.figure(figsize=(8, 5))
-    for sigma in sigma_values:
-        for k in k_values:
-            subset = df[(df['strategy'] == 'Inventory') &
-                        (df['sigma'] == sigma) &
-                        (df['k'] == k)]
-            plt.plot(subset['gamma'], subset['mean_profit'], marker='o',
-                     label=f"σ={sigma}, k={k}")
-
-    plt.xlabel('Gamma')
-    plt.ylabel('Mean Profit')
-    plt.title('Inventory Strategy: Mean Profit vs Gamma')
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
 
 if __name__ == '__main__':
     main()
