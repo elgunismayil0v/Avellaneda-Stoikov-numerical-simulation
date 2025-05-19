@@ -4,7 +4,7 @@ import pandas as pd
 
 from simulations.arithmetic_brownian import ArithmeticBrownianMotion
 from strategies.avellaneda_stoikov_for_gbm import AvellanedaStoikovGBM
-from strategies.symmetric_strategy import SymmetricStategy
+from strategies.symmetric_strategy import SymmetricStrategy
 from executions.poisson_execution import PoissonOrderExecution
 from core.inventory_manager import InventoryManager
 from core.data_logger import DataLogger
