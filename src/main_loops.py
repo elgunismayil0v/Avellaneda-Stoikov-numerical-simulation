@@ -1,92 +1,96 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from simulations.arithmetic_brownian import ArithmeticBrownianMotion
-from strategies.avellaneda_stoikov_for_gbm import AvellanedaStoikovGBM
-from strategies.symmetric_strategy import SymmetricStategy
-from executions.poisson_execution import PoissonOrderExecution
-from core.inventory_manager import InventoryManager
-from core.data_logger import DataLogger
-from core.simulation_runner import SimulationRunner
+from src.simulations.arithmetic_brownian import ArithmeticBrownianMotion
+from src.strategies.avellaneda_stoikov_gbm import AvellanedaStoikovStrategyGbm
+from src.strategies.symmetric_strategy import SymmetricStrategy
+from src.executions.poisson_execution import PoissonOrderExecution
+from src.core.inventory_manager import InventoryManager
+from src.core.data_logger import DataLogger
+from src.core.simulation_runner import SimulationRunner
+from src.utils.simulation_helpers import run_strategy
 
+import itertools
 
-def run_simulations(strategy_class, strategy_name, sigma_values, gamma_values, k_values, num_runs=1000):
-    """
-    Runs num_runs simulations for each combination of sigma, gamma, and k using the given strategy_class.
-    Returns a DataFrame with summary metrics.
-    """
-    results = []
-    # Fixed parameters per paper
-    S0 = 100
-    A = 140
-    dt = 0.005
-    T = 1.0
+import itertools
+import pandas as pd
 
-    for sigma, gamma, k in itertools.product(sigma_values, gamma_values, k_values):
-        profits = []
-        final_qs = []
-        spreads = []
-        for _ in range(num_runs):
-            # Initialize components
-            market = ArithmeticBrownianMotion(S0=S0, sigma=sigma)
-            strategy = SymmetricStategy(gamma=gamma, sigma=sigma, k=k)
-            execution = PoissonOrderExecution(A=A, k=k)
-            inventory = InventoryManager(initial_cash=0, initial_inventory=0)
-            logger = DataLogger()
+def run_simulations(
+    simulator,             # Class or function to simulate mid-price (e.g., GBM or ABM)
+    strategy_class,        # Class that implements quoting strategy
+    execution_class,       # Class that models execution logic
+    strategy_name,         # Label for strategy (for plots)
+    market_name,           # Label for the market model (ABM/GBM)
+    sigma_values,          # List of volatilities
+    gamma_values,          # List of risk aversion parameters
+    k_values,              # List of market depth parameters
+    steps_values,          # List of step counts
+    dt_values,             # List of time increments
+    seed: int = 42         # Random seed
+):
+    all_results = []
 
-            # Configure and run
-            runner = SimulationRunner(
-                market=market,
-                pricing_strategy=strategy,
-                order_execution=execution,
-                inventory=inventory,
-                logger=logger,
-                dt=dt,
-                T=T
-            )
-            runner.run()
-            df = logger.get_dataframe()
+    for sigma, gamma, k, steps, dt in itertools.product(
+        sigma_values, gamma_values, k_values, steps_values, dt_values
+    ):
+        df = run_strategy(
+            simulator=simulator,
+            strategy_class=strategy_class,
+            execution_class=execution_class,
+            strategy_name=strategy_name,
+            market_name=market_name,
+            steps=steps,
+            dt=dt,
+            gamma=gamma,
+            k=k,
+            sigma=sigma,
+            seed=seed
+        )
+        df["sigma"] = sigma
+        df["gamma"] = gamma
+        df["k"] = k
+        df["steps"] = steps
+        df["dt"] = dt
+        all_results.append(df)
 
-            # Compute metrics
-            mid_price = df['mid_prices'].iloc[-1]
-            pnl = inventory.cash + inventory.inventory * mid_price
-            profits.append(pnl)
-            final_qs.append(inventory.inventory)
-            spread = (df['ask_prices'] - df['bid_prices']).mean()
-            spreads.append(spread)
+    return pd.concat(all_results, ignore_index=True)
 
-        # summarize per parameter tuple
-        results.append({
-            'strategy': strategy_name,
-            'sigma': sigma,
-            'gamma': gamma,
-            'k': k,
-            'spread': sum(spreads)/len(spreads),
-            'mean_profit': pd.Series(profits).mean(),
-            'std_profit': pd.Series(profits).std(),
-            'mean_q': pd.Series(final_qs).mean(),
-            'std_q': pd.Series(final_qs).std()
-        })
-
-    return pd.DataFrame(results)
 
 
 def main():
-    # Parameter grids as requested
     sigma_values = [1, 2, 3]
     gamma_values = [0.05, 0.1, 0.2]
     k_values = [1.0, 1.5, 2.0]
+    steps_values = [300, 400]
+    dt_values = [0.005, 0.01]
     num_runs = 1000
 
-    # Run inventory (Avellaneda-Stoikov) strategy
-    inv_df = run_simulations(AvellanedaStoikovGBM, 'Inventory', sigma_values, gamma_values, k_values, num_runs)
+    # Corrected: now includes steps_values and dt_values
+    inv_df = run_simulations(
+        AvellanedaStoikovStrategyGbm, 
+        'Inventory',
+        sigma_values, 
+        gamma_values, 
+        k_values, 
+        steps_values,      
+        dt_values,          
+        num_runs            
+    )
 
-    # Run symmetric strategy
-    sym_df = run_simulations(SymmetricStategy, 'Symmetric', sigma_values, gamma_values, k_values, num_runs)
+    sym_df = run_simulations(
+        SymmetricStrategy, 
+        'Symmetric',
+        sigma_values, 
+        gamma_values, 
+        k_values, 
+        steps_values,       
+        dt_values,          
+        num_runs            
+    )
 
-    # Combine results and save
     results_df = pd.concat([inv_df, sym_df], ignore_index=True)
     results_df.to_csv('simulation_results.csv', index=False)
+    print("Saved results to simulation_results.csv")
 
     # Read back CSV
     df = pd.read_csv('simulation_results.csv')
@@ -99,7 +103,7 @@ def main():
             subset = df[(df['strategy'] == 'Inventory') &
                         (df['sigma'] == sigma) &
                         (df['k'] == k)]
-            plt.plot(subset['gamma'], subset['mean_profit'], marker='o',
+            plt.plot(subset['gamma'], subset['avg_profit'], marker='o',
                      label=f"σ={sigma}, k={k}")
 
     plt.xlabel('Gamma')
