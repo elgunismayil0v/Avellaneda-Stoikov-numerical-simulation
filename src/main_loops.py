@@ -93,7 +93,7 @@ def plot_strategy(df, strategy_name, sigma_values, k_values):
 
 def main():
     # Parameter grids
-    sigma_values = [0.1, 0.2, 0.3]
+    sigma_values = [1, 2, 3]
     gamma_values = [0.05, 0.1, 0.5]
     k_values = [1.0, 1.5, 2.0]
     num_runs = 1000
