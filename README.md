@@ -57,11 +57,11 @@ Data Logging collect all relevant data points during the simulation. A base logg
 The Simulation Runner ties everything together. It initializes the components, runs the simulation loop, and coordinates between the market, strategy, execution, etc.
 
 ## Development Workflow for 5-Person Team:
-Vikram Bahadur: Quick POC, Base classes blue print design and process implementation, team cordination and final presentation preparation.
-Elgun Ismayilov: Extended MarketSimulator with new models (e.g.,gbm), Finding appropirate model to be implemented for whole team.
-Khalil Khalilli: Implement alternative PricingStrategy classes, added unit test cases, graph plotting and utility optimization.
-Nihad Alili: Parameters sensative analysis and compparative strategies analysis.
-Anindita Basu: Monte Carlo overall execution and results reporting with key results finding.
+1. **Vikram Bahadur**: Quick POC, Base python classes blue print design and process implementation, team cordination and final presentation preparation.
+2. **Elgun Ismayilov**: Extended MarketSimulator with new models (e.g.,gbm), Finding appropirate model to be implemented for whole team.
+3. **Khalil Khalilli**: Implement alternative PricingStrategy classes, added unit test cases, graph plotting and utility optimization.
+4. **Nihad Alili**: Parameters sensative analysis and compparative strategies analysis.
+5. **Anindita Basu**: Monte Carlo overall execution and results reporting with key results finding.
 
 
 
