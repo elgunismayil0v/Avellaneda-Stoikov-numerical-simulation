@@ -61,7 +61,7 @@ The Simulation Runner ties everything together. It initializes the components, r
 2. **Elgun Ismayilov**: Extended MarketSimulator with new models (e.g.,gbm), Finding appropriate model to be implemented for whole team.
 3. **Khalil Khalilli**: Implement alternative PricingStrategy classes, added unit test cases, graph plotting and utility optimization.
 4. **Nihad Alili**: Parameters sensitive analysis and comparative strategies analysis.
-5. **Anindita Basu**: Monte Carlo overall execution and results reporting with key results finding.
+5. **Anindita Basu**: Monte Carlo overall execution and results reporting with key results finding, comparative analysis of PnL.
 
 
 
