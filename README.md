@@ -8,7 +8,7 @@
 	- Get source code -> git clone https://github.com/elgunismayil0v/Avellaneda-Stoikov-numerical-simulation.git
 	- Move to project folder -> cd Avellaneda-Stoikov-numerical-simulation
 	- Install required libraries -> pip3 install -r requirements.txt or (pip install -r requirements.txt)
-	- Run the program -> python src/main.py
+	- Run the program -> python -m src.main
 
 
 ## Class Diagram Overview:
